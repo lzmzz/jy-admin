@@ -61,7 +61,7 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           const params = {name: this.form.userName,pwd : this.form.password}
-          this.$http.post('/api/user/login', params).then((res) => {
+          this.$http.post('/jyadmin/api/user/login', params).then((res) => {
             console.log(res.data)
             if(res.data.status==-1){
               this.$Message.warning(res.data.data)

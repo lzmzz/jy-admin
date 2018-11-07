@@ -2,6 +2,12 @@
   <div>
       <div class="formPanel">
         <Form ref="orderData" :model="orderData" label-position="right" :label-width="100" :rules="orderValidate">
+          <FormItem label="订单类型：" prop="order_type">
+            <RadioGroup v-model="orderData.order_type">
+              <Radio :label="0">出货生产单</Radio>
+              <Radio :label="1">库存生产单</Radio>
+          </RadioGroup>
+          </FormItem>
           <FormItem label="订单号：" prop="order_no">
               <Input v-model="orderData.order_no"></Input>
           </FormItem>
@@ -46,8 +52,10 @@ export default {
         order_format: "",
         client_no: "",
         order_remark: "",
-        client_request: ""
+        client_request: "",
+        order_type: 0,
       },
+      token: JSON.parse(localStorage.getItem('userInfo')).token,
       orderValidate: {
         order_no: [
           {
@@ -83,6 +91,9 @@ export default {
         client_no: [
           { required: true, message: "客户编号不能为空", trigger: "blur" }
         ],
+        order_type: [
+          { required: true, message: "请选择订单类型" }
+        ]
       }
     };
   },
@@ -94,7 +105,8 @@ export default {
           if (valid) {
             this.loadingBtn=true
             var params = this.orderData
-            this.$http.post('/api/order/addOrder', params).then((res) => {
+            params.token=this.token
+            this.$http.post('/jyadmin/api/order/addOrder', params).then((res) => {
               console.log(res,'res')
               this.$Message.info(res.data.data)
               this.loadingBtn=false
@@ -105,7 +117,7 @@ export default {
             this.$Message.error('订单信息有误，请修改')
           }
       })
-    }
+    },
   }
 };
 </script>

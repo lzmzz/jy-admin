@@ -20,13 +20,20 @@ var jsonWrite = function(res, ret) {
 }
 var checkToken = function(res,token){
     var sql = $sql.user.checkToken
-    conn.query(sql, [token], function(err, result) {
-        if (result) {
-            return true
-        }else{
-            res.json({data: 'token失效', status: -1})
-            return false
+    return new Promise(resolve => {
+        if(_.isEmpty(token)){
+            res.json({data: '登录失效', status: -1})
+            resolve(false)
+            return
         }
+        conn.query(sql, [token], function(err, result) {
+            if (result[0]&&result[0].work_type==999) {
+                resolve(true)
+            }else{
+                res.json({data: '登录失效', status: -1})
+                resolve(false)
+            }
+        })
     })
 }
 // 登录接口
@@ -39,6 +46,7 @@ router.post('/login', (req, res) => {
         if (err) {
         }
         if (result1) {
+            console.log('12311111111111', '')
             if(result1.length<1||result1[0].work_type!=999){
                 res.json({data: '该用户不存在', status: -1})            
                 return
@@ -95,7 +103,7 @@ router.post('/getUserInfo', (req, res) => {
 
 // 增加用户接口aaa
 router.post('/addUser', (req, res) => {
-    var sql = $sql.user.add
+    var sql = $sql.user.addUser
     var params = req.body
     checkToken(res, params.token)
     conn.query('select * from `user` where user_name=?', [params.name], function(err, result) {
@@ -106,11 +114,11 @@ router.post('/addUser', (req, res) => {
             return
         }
     })
-    conn.query(sql, [params.name, params.tel, params.work_type, params.pwd], function(err, result) {
+    conn.query(sql, [params.name, params.tel, params.work_type, params.pwd, params.is_master], function(err, result) {
         if (err) {
         }
         if (result) {
-            jsonWrite(res, result)
+            res.json({data: '添加成功', status: 0})
         }
     })
 })

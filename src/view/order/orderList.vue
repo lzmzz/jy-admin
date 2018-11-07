@@ -13,12 +13,23 @@
       <Page :total="totalLen" @on-change="changePage" />
     </div>
     <Modal
+      v-model="showStatusDtl"
+      width="800px"
+      title="订单详情">
+      <Table border :columns="columns2" :data="statusTableData" class="orderTable"></Table>      
+    </Modal>
+    <Modal
       v-model="showOrderDtl"
       title="修改订单">
         <Form ref="orderData" :model="orderData" label-position="right" :label-width="100" :rules="orderValidate">
           <FormItem label="订单号：" prop="order_no">
-            <!-- <Input v-model="orderData.order_no"></Input> -->
             <p>{{orderData.order_no}}</p>
+          </FormItem>
+          <FormItem label="订单类型：" prop="order_type">
+            <RadioGroup v-model="orderData.order_type">
+              <Radio :label="0">出货生产单</Radio>
+              <Radio :label="1">库存生产单</Radio>
+          </RadioGroup>
           </FormItem>
           <FormItem label="订单名：" prop="order_name">
             <Input v-model="orderData.order_name"></Input>
@@ -77,6 +88,7 @@ export default {
         client_request: "",
         order_remark: "",
         order_status: "",
+        order_type: 0,
       },
       statusArr: ['开料中','拉伸中','油压中','车床中','巴位中','米位/甲位中','抛光中','打字中','清洗中','包装中','已完成'],
       orderValidate: {
@@ -95,7 +107,7 @@ export default {
           {
             text: '今天',
             value () {
-              return new Date();
+              return [new Date(),new Date()];
             }
           },
           {
@@ -133,6 +145,11 @@ export default {
           key: 'orderNo'
         },
         {
+          title: '订单类型',
+          width: 180,
+          key: 'orderType'
+        },
+        {
           title: '创建时间',
           width: 180,
           key: 'createTime'
@@ -143,10 +160,22 @@ export default {
         },
         {
           title: '订单数量',
-          key: 'orderMany'
+          width: 100,
+          key: 'orderMany',
+          render: (h,params)=>{
+            return h('span',{
+              style:{color:'#2db7f5', cursor: 'pointer'},
+              on: {
+                click: () => {
+                  this.getStatusDtl(params.row.orderNo)
+                }
+              }
+            },params.row.orderMany)
+          }
         },
         {
           title: '订单规格',
+          width: 100,
           key: 'orderFormat'
         },
         {
@@ -203,6 +232,11 @@ export default {
                 props: {
                   type: 'error',
                   icon: 'ios-trash',
+                },
+                on: {
+                  click: () => {
+                    this.deleteOrder(params.row.orderNo)
+                  }
                 }
               },'删除')
             ])
@@ -217,6 +251,37 @@ export default {
         //   key: 'orderRemark'
         // },
       ],
+      columns2: [
+        {
+          title: '员工姓名',
+          key: 'userName'
+        },
+        {
+          title: '工种类别',
+          key: 'workType',
+          render: (h,params)=>{
+            var i  =params.row.workType
+            var text = this.statusArr[i].replace('中','')+'师傅'
+            return h('div',{
+              
+            },text)
+          }
+        },
+        {
+          title: '生产个数',
+          key: 'statusMany'
+        },
+        {
+          title: '完成时间',
+          key: 'confrimTime',
+          render: (h,params)=>{
+            var time = this.timestampToTime(params.row.confrimTime)
+            return h('div',{
+              
+            },time)
+          }
+        },
+      ],
       orderList: [],
       orderTableData: [],
       showOrderDtl: false,
@@ -224,7 +289,9 @@ export default {
       oldOrderData: {},
       activePage: 1,
       totalLen: 1,
-      token: JSON.parse(localStorage.getItem('userInfo')).token
+      statusTableData: [],
+      showStatusDtl: false,
+      userInfo: JSON.parse(localStorage.getItem('userInfo'))
     }
   },
   mounted() {
@@ -233,17 +300,66 @@ export default {
   methods: {
     ...mapActions([
     ]),
+    deleteOrder(orderNo) {
+      this.$Modal.confirm({
+        content: '确定要删除这笔订单吗？',
+        loading: true,
+        onOk: ()=>{
+          this.$Modal.remove()
+          var params = {
+            token: this.userInfo.token,
+            order_no: orderNo
+          }
+          this.$http.post('/jyadmin/api/order/deleteOrder', params).then((res) => {
+            this.getOrderList()
+            if(res.data.status==0){
+              this.$Message.success('删除成功')
+            }else{
+              this.$Message.success('系统错误')
+            }
+          })
+        }
+      })
+    },
+    getStatusDtl: function(orderNo){
+      //查看订单数量详情
+      var params = {
+        token: this.userInfo.token,
+        order_no: orderNo
+      }
+      this.$http.post('/jyadmin/api/order/getStatusDtl', params).then((res) => {
+        console.log(res, '')
+        if(res.data.status==0){
+          var data = res.data.data
+          var arr = []
+          if(data.length>0){
+            for(var i=0;i<data.length;i++){
+              arr.push({
+                userName: data[i].user_name,
+                workType: data[i].work_type,
+                statusMany: data[i].status_many,
+                confrimTime: data[i].confrim_time
+              })
+            }
+          }
+          this.statusTableData=arr
+          this.showStatusDtl=true
+        }
+      })
+    },
     getOrderList: function(params){
       if(_.isEmpty(params)){
         params={}
       }
       params.page=this.activePage
-      params.token=this.token
-      this.$http.post('/api/order/getOrderList', params).then((res) => {
+      params.token=this.userInfo.token
+      this.$http.post('/jyadmin/api/order/getOrderList', params).then((res) => {
         if(res.data.status!=-1){
           this.orderTableData=[]
           this.orderList=res.data.data
           this.totalLen = res.data.totalLen
+        }else{
+          this.$Message.error(res.data.data)
         }
       }).catch(err => {
         console.log(err)
@@ -272,8 +388,9 @@ export default {
             return
           }
           params.order_no = this.orderData.order_no
-          this.$http.post('/api/order/setOrderItem', params).then((res) => {
-            this.getOrderList()
+          params.token=this.userInfo.token
+          this.$http.post('/jyadmin/api/order/setOrderItem', params).then((res) => {
+            this.getOrderList(this.filterData)
             this.orderDlgLoad = false
             this.showOrderDtl=false
             this.$Message.info(res.data.data)
@@ -288,21 +405,30 @@ export default {
     },
     openOrderDtl: function(orderNo){
       //打开订单详情
-      this.$http.post('/api/order/getOrderItem', {orderNo}).then((res) => {
-        var data = res.data.data
-        this.orderData={
-          order_no: data.order_no,
-          order_name: data.order_name,
-          order_many: data.order_many,
-          client_name: data.client_name,
-          order_format: data.order_format,
-          client_no: data.client_no,
-          client_request: data.client_request,
-          order_remark: data.order_remark,
-          order_status: data.order_status,
+      // params.token=this.token
+      var params = {}
+      params.orderNo=orderNo
+      params.token=this.userInfo.token
+      this.$http.post('/jyadmin/api/order/getOrderItem', params).then((res) => {
+        if(res.data.status==0){
+          var data = res.data.data
+          this.orderData={
+            order_no: data.order_no,
+            order_name: data.order_name,
+            order_many: data.order_many,
+            client_name: data.client_name,
+            order_format: data.order_format,
+            client_no: data.client_no,
+            client_request: data.client_request,
+            order_remark: data.order_remark,
+            order_status: data.order_status,
+            order_type: data.order_type
+          }
+          this.oldOrderData = JSON.parse(JSON.stringify(this.orderData))
+          this.showOrderDtl = true
+        }else{
+          this.$Message.error(res.data.data)
         }
-        this.oldOrderData = JSON.parse(JSON.stringify(this.orderData))
-        this.showOrderDtl = true
       }).catch(err => {
         console.log(err)
       })
@@ -337,6 +463,7 @@ export default {
     orderList: function(newVal){
       for(var i=0;i<newVal.length;i++){
         var createTime = this.timestampToTime(newVal[i].create_time)
+        var orderType = newVal[i].order_type==0? '出货生产单': '库存生产单'
         this.orderTableData.push({
           orderNo: newVal[i].order_no,
           createTime: createTime,
@@ -347,7 +474,8 @@ export default {
           clientName: newVal[i].client_name,
           clientNo: newVal[i].client_no,
           clientRequest: newVal[i].client_request,
-          orderRemark: newVal[i].order_remark
+          orderRemark: newVal[i].order_remark,
+          orderType: orderType
         })
       }
     }

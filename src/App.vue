@@ -24,7 +24,7 @@ export default {
           path: '/login'
         })
       }else{
-        this.$http.post('/api/user/getUserInfo', {token: this.userInfo.token}).then((res) => {
+        this.$http.post('/jyadmin/api/user/getUserInfo', {token: this.userInfo.token}).then((res) => {
           if(res.data.status==-1){
             this.$Message.warning(res.data.data)
             this.$router.push({
