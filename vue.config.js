@@ -12,7 +12,7 @@ fs.writeFileSync(path.join(__dirname, './config/env.js'), `export default '${env
 // 这里需要修改为你线上项目存放的路径
 // 比如你打包的文件放到服务器的my-app文件夹，域名为a.com，则应改为
 // http(s)://a.com/my-app/
-const BASE_URL = 'https://iview.github.io/iview-admin/'
+const BASE_URL = 'http://47.106.105.113:3000/'
 
 module.exports = {
   // Project deployment base
@@ -23,6 +23,7 @@ module.exports = {
   // https://www.foobar.com/my-app/
   // then change this to '/my-app/'
   baseUrl: BASE_URL,
+  lintOnSave: false,//屏蔽eslint
   // tweak internal webpack configuration.
   // see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
   chainWebpack: config => {
