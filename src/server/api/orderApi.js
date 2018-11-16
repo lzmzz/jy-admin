@@ -4,18 +4,19 @@ var router = express.Router()
 var mysql = require('mysql')
 var $sql = require('../sqlMap')
 var _ = require('lodash')
+var common = require('./common')
 // 连接数据库
 var conn = mysql.createConnection(models.mysql)
 
 conn.connect()
 var jsonWrite = function(res, ret) {
     if(typeof ret === 'undefined') {
-        res.json({
+        return res.json({
             code: '1',
             msg: '操作失败'
         })
     } else {
-        res.json(ret)
+        return res.json(ret)
     }
 }
 function checkToken(res,token){
@@ -32,6 +33,7 @@ function checkToken(res,token){
             }else{
                 res.json({data: '登录失效', status: -1})
                 resolve(false)
+                return
             }
         })
     })
@@ -59,7 +61,7 @@ router.post('/getOrderList', (req, res) => {
                         console.log(err)
                     }
                     if (result) {
-                        res.json({data: result.reverse(),status: 0, totalLen: totalLen})
+                        return res.json({data: result.reverse(),status: 0, totalLen: totalLen})
                     }
                 })
                 return
@@ -101,9 +103,9 @@ router.post('/getOrderList', (req, res) => {
             console.log(sql,'test')
             conn.query(sql, dataArr, function(err, result) {
                 if (result) {
-                    res.json({data: result.reverse(), status: 0, totalLen: totalLen})
+                    return res.json({data: result.reverse(), status: 0, totalLen: totalLen})
                 }else{
-                    res.json({data: '系统错误',status: -1})
+                    return res.json({data: '系统错误',status: -1})
                 }
             })
         }
@@ -125,16 +127,16 @@ router.post('/addOrder', (req, res) => {
                     console.log(err)
                 }
                 if (result.length>0) {
-                    res.json({data: '订单号已存在！', status: -1})
+                    return res.json({data: '订单号已存在！', status: -1})
                 }else{
                     conn.query(sql, [params.order_no,params.create_time,params.order_status,params.order_name,params.order_many,params.client_name,params.order_format,params.client_no,params.client_request,params.order_remark,params.order_type], function(err, result) {
                         if (err) {
                             console.log(err)
                         }
                         if (result) {
-                            res.json({data: '新增订单成功', status: 0})
+                            return res.json({data: '新增订单成功', status: 0})
                         }else{
-                            res.json({data: '系统错误',status: -1})
+                            return res.json({data: '系统错误',status: -1})
                         }
                     })
                 }
@@ -157,9 +159,9 @@ router.post('/getOrderItem', (req, res) => {
                     console.log(err)
                 }
                 if (result) {
-                    res.json({data: result[0],status: 0})
+                    return res.json({data: result[0],status: 0})
                 }else{
-                    res.json({data: '系统错误',status: -1})
+                    return res.json({data: '系统错误',status: -1})
                 }
             })
         }
@@ -181,7 +183,7 @@ router.post('/setOrderItem', (req, res) => {
             var str = sql.substring(0,sql.lastIndexOf(', '))
             sql = str+' '
             if(_.isEmpty(params.order_no)){
-                res.json({data: '订单号为空！',status: -1})
+                return res.json({data: '订单号为空！',status: -1})
                 return
             }
             sql+='where order_no = ?'
@@ -192,9 +194,9 @@ router.post('/setOrderItem', (req, res) => {
                     console.log(err)
                 }
                 if (result) {
-                    res.json({data: '订单修改成功',status: 0})
+                    return res.json({data: '订单修改成功',status: 0})
                 }else{
-                    res.json({data: '系统错误',status: -1})
+                    return res.json({data: '系统错误',status: -1})
                 }
             })
         }
@@ -212,9 +214,9 @@ router.post('/getStatusDtl', (req, res) => {
                 }
                 if (result) {
                     console.log(result, 'result.data')
-                    res.json({data: result,status: 0})
+                    return res.json({data: result,status: 0})
                 }else{
-                    res.json({data: '系统错误',status: -1})
+                    return res.json({data: '系统错误',status: -1})
                 }
             })
         }
@@ -234,16 +236,61 @@ router.post('/deleteOrder', (req, res) => {
                 if (result) {
                     conn.query(sql2, [params.order_no], function(err, result2) {
                         if(result2){
-                            res.json({data: '删除成功',status: 0})                            
+                            return res.json({data: '删除成功',status: 0})                            
                         }else{
-                            res.json({data: '系统错误',status: -1})
+                            return res.json({data: '系统错误',status: -1})
                         }
                     })
                 }else{
-                    res.json({data: '系统错误',status: -1})
+                    return res.json({data: '系统错误',status: -1})
                 }
             })
         }
     })
 })
+
+router.post('/getWageDtl', (req, res) => {
+    var sql = $sql.order.getWageDtl
+    var sql2= $sql.order.getWageDtl2
+    var params = req.body
+    var date=new Date()
+    date.setDate(1)
+    params.startDay = new Date(date.toLocaleDateString()).getTime()
+    common.checkToken(params.token).then(hasToken=>{
+        if(hasToken){
+            async function getRst(){
+                var result = await common.asyncQuery(sql, [params.user_id, params.startDay])
+                if(result!='err'){
+                    var lsArr = []
+                    for(var i=0;i<result.length;i++){
+                        var obj = result[i]
+                        var result2 = await common.asyncQuery(sql2, [result[i].order_no])
+                        if(result2!='err'){
+                            obj.price=result2[0].price
+                                obj.pg_price=result2[0].pg_price
+                                if(params.is_master==0){
+                                    //抛光小计
+                                    obj.xiaoji=result2[0].pg_price*obj.status_many
+                                }else{
+                                    obj.xiaoji=result2[0].price*obj.status_many
+                                }
+                            lsArr.push(obj)
+                        }else{
+                            res.json({data: [], status: 0})
+                            return
+                        }
+                    }
+                    res.json({data: lsArr, status: 0})
+                }else{
+                    res.json({data: [], status: 0})
+                }
+                
+            } 
+            getRst()
+        }else{
+            res.json({data: '登录失效', status: -1})
+        }
+    })
+})
+
 module.exports = router

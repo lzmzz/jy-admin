@@ -26,7 +26,6 @@ export default {
       }else{
         this.$http.post('/jyadmin/api/user/getUserInfo', {token: this.userInfo.token}).then((res) => {
           if(res.data.status==-1){
-            this.$Message.warning(res.data.data)
             this.$router.push({
               path: '/login'
             })
@@ -40,10 +39,15 @@ export default {
     }
   },
   watch: {
-    $route: function(newVal){
-      if(newVal.path!='/login'&&_.isEmpty(this.userInfo)){
-        this.getUserInfo()
-      }
+    $route: {
+      handler(newVal){
+        if(newVal.path!='/login'&&_.isEmpty(this.userInfo)){
+          this.$router.push({
+          path: '/login'
+        })
+        }
+      },
+      deep: true
     }
   }
 }

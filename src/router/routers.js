@@ -79,6 +79,15 @@ export default [
         },
         component: () => import('@/view/user/addUser.vue')
       },
+      {
+        path: 'userList',
+        name: 'userList',
+        meta: {
+          icon: 'arrow-graph-up-right',
+          title: '员工列表'
+        },
+        component: () => import('@/view/user/userList.vue')
+      },
     ]
   },
   // {

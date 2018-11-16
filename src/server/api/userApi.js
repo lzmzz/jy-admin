@@ -10,12 +10,12 @@ conn.multipleStatements=true
 conn.connect()
 var jsonWrite = function(res, ret) {
     if(typeof ret === 'undefined') {
-        res.json({
+        return res.json({
             code: '1',
             msg: '操作失败'
         })
     } else {
-        res.json(ret)
+        return res.json(ret)
     }
 }
 var checkToken = function(res,token){
@@ -46,26 +46,23 @@ router.post('/login', (req, res) => {
         if (err) {
         }
         if (result1) {
-            console.log('12311111111111', '')
             if(result1.length<1||result1[0].work_type!=999){
-                res.json({data: '该用户不存在', status: -1})            
-                return
+                return res.json({data: '该用户不存在', status: -1})
             }
             if(result1[0].pwd!=params.pwd){
-                res.json({data: '密码错误', status: -1})
-                return
+                return res.json({data: '密码错误', status: -1})
             }
             var nowTime = Date.parse(new Date())
             var token = Math.random().toString(36).substr(2)
             conn.query(loginSuccess, [nowTime, token, params.name], function(err, result){
                 //存时间戳
                 if (err) {
-                    res.json({data: err, status: -1})
+                    return res.json({data: err, status: -1})
                 }
                 if(result){
                     conn.query(getUserInfo, [token], function(err, result2) {
 
-                        res.json({data: result2[0], status: 0})
+                        return res.json({data: result2[0], status: 0})
                     })
                 }
             })
@@ -84,8 +81,7 @@ router.post('/getUserInfo', (req, res) => {
         }
         if (result) {
             if(result.length<1){
-                res.json({data: '该用户不存在', status: -1})
-                return
+                return res.json({data: '该用户不存在', status: -1})
             }
             var nowTime = Date.parse(new Date())/1000
             if(_.isEmpty(result[0].login_time)||(result[0].login_time/1000+21600)<nowTime){
@@ -93,34 +89,59 @@ router.post('/getUserInfo', (req, res) => {
                 conn.query(clearToken, ['', params.token], function(err, result) {
 
                 })
-                res.json({data: '您还未登录，请先登录', status: -1})
-                return
+                return res.json({data: '您还未登录，请先登录', status: -1})
             }
-            res.json({data: result[0], status: 0})
+            return res.json({data: result[0], status: 0})
         }
     })
 })
 
-// 增加用户接口aaa
-router.post('/addUser', (req, res) => {
-    var sql = $sql.user.addUser
+router.post('/getUserList', (req, res) => {
+    var sql = $sql.user.getUserList
     var params = req.body
-    checkToken(res, params.token)
-    conn.query('select * from `user` where user_name=?', [params.name], function(err, result) {
-        if (err) {
-        }
-        if (result) {
-            res.json({data: '该用户已存在', status: -1})
-            return
+    var filterArr = []
+    var dataArr = []
+    checkToken(res, params.token).then(data => {
+        if(data){
+            if(_.isEmpty(params)||_.isEmpty(params.name)&&_.isEmpty(params.tel)&&(!_.isNumber(params.work_type)||params.work_type==10)){
+                conn.query(sql, function(err, result) {
+                    if(err){
+                        return res.end()
+                    }
+                    if (result) {
+                        return res.json({data: result, status: 0})
+                    }
+                })
+            }else{
+                if(!_.isEmpty(params.name)){
+                    filterArr.push('name=?')
+                    dataArr.push(params.name)
+                }if(!_.isEmpty(params.tel)){
+                    filterArr.push('tel=?')
+                    dataArr.push(params.tel)
+                }if(_.isNumber(params.work_type)){
+                    filterArr.push('work_type=?')
+                    dataArr.push(params.work_type)
+                }
+                
+                if(filterArr.length>0){
+                    for(var i=0;i<filterArr.length;i++){
+                        sql+=' and '+filterArr[i]
+                    }
+                }
+                conn.query(sql, dataArr, function(err, result) {
+                    console.log('result', result)
+                    if(err){
+                        return res.end()
+                    }
+                    if (result) {
+                        return res.json({data: result, status: 0})
+                    }
+                })
+            }
+            
         }
     })
-    conn.query(sql, [params.name, params.tel, params.work_type, params.pwd, params.is_master], function(err, result) {
-        if (err) {
-        }
-        if (result) {
-            res.json({data: '添加成功', status: 0})
-        }
-    })
+    
 })
-
 module.exports = router

@@ -1,8 +1,6 @@
 // node 后端服务器
-
 const userApi = require('./api/userApi')
 const orderApi = require('./api/orderApi')
-
 const fs = require('fs')
 const path = require('path')
 const bodyParser = require('body-parser')
@@ -25,7 +23,7 @@ app.use(bodyParser.urlencoded({extended: false}))
 // })
 app.use(express.static(path.join(__dirname, 'dist')))
 // 后端api路由
-app.get('/jyadmin', function (req, res) {
+app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname+'/dist/index.html'))
 })
 app.use('/jyadmin/api/user', userApi)

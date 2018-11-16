@@ -1,7 +1,7 @@
 <template>
   <div>
       <div class="formPanel">
-        <Form ref="orderData" :model="orderData" label-position="right" :label-width="100" :rules="orderValidate">
+        <Form ref="orderData" :model="orderData" label-position="right" :label-width="120" :rules="orderValidate">
           <FormItem label="订单类型：" prop="order_type">
             <RadioGroup v-model="orderData.order_type">
               <Radio :label="0">出货生产单</Radio>
@@ -11,7 +11,7 @@
           <FormItem label="订单号：" prop="order_no">
               <Input v-model="orderData.order_no"></Input>
           </FormItem>
-          <FormItem label="订单名：" prop="order_name">
+          <FormItem label="订单名：">
               <Input v-model="orderData.order_name"></Input>
           </FormItem>
           <FormItem label="订单数量：" prop="order_many">
@@ -22,6 +22,12 @@
           </FormItem>
           <FormItem label="订单规格：" prop="order_format">
               <Input v-model="orderData.order_format"></Input>
+          </FormItem>
+          <FormItem label="订单单价（元）：" prop="price">
+              <Input v-model="orderData.price"></Input>
+          </FormItem>
+          <FormItem label="抛光单价（元）：" prop="pg_price">
+              <Input v-model="orderData.pg_price"></Input>
           </FormItem>
           <FormItem label="客户编号：" prop="client_no">
               <Input v-model="orderData.client_no"></Input>
@@ -54,6 +60,8 @@ export default {
         order_remark: "",
         client_request: "",
         order_type: 0,
+        price: 0,
+        pg_price: 0,
       },
       token: JSON.parse(localStorage.getItem('userInfo')).token,
       orderValidate: {
@@ -93,7 +101,13 @@ export default {
         ],
         order_type: [
           { required: true, message: "请选择订单类型" }
-        ]
+        ],
+        price: [
+          { required: true, message: "请输入订单单价" }
+        ],
+        pg_price: [
+          { required: true, message: "请输入抛光单价" }
+        ],
       }
     };
   },

@@ -8,6 +8,7 @@ var sqlMap = {
         getUserInfo: 'select name, tel, login_time, work_type, token from `user` where token=?',
         checkToken: 'select work_type from `user` where token=?',
         clearToken: 'update `user` set token=? where token=?',
+        getUserList: 'select * from `user` where work_type != 999',
     },
     //订单
     order: {
@@ -19,6 +20,8 @@ var sqlMap = {
         getStatusDtl: 'select status_many, work_type, user_name, confrim_time from `status_details` where order_no = ?',
         deleteOrder: 'delete from `order` where order_no=?',
         deleteOrderDtl: 'delete from `status_details` where order_no=?',
+        getWageDtl: 'select * from `status_details` where user_id = ? and confrim_time >= ?',
+        getWageDtl2: 'select * from `order` where order_no = ?',
     }
 }
 

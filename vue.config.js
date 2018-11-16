@@ -40,11 +40,11 @@ module.exports = {
     port: 8080,
     // 设置代理
     proxy: {
-      '/api': {
-        target: 'http://localhost:3000/api/',
+      '/jyadmin/api': {
+        target: 'http://localhost:3000/jyadmin/api/',
         changeOrigin: true,
         pathRewrite: {
-            '^/api': ''
+            '^/jyadmin/api': ''
         }
       }
     }
