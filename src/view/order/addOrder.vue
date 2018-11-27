@@ -11,9 +11,6 @@
           <FormItem label="订单号：" prop="order_no">
               <Input v-model="orderData.order_no"></Input>
           </FormItem>
-          <FormItem label="订单名：">
-              <Input v-model="orderData.order_name"></Input>
-          </FormItem>
           <FormItem label="订单数量：" prop="order_many">
               <Input v-model="orderData.order_many"></Input>
           </FormItem>
@@ -31,6 +28,9 @@
           </FormItem>
           <FormItem label="客户编号：" prop="client_no">
               <Input v-model="orderData.client_no"></Input>
+          </FormItem>
+          <FormItem label="订单名：">
+              <Input v-model="orderData.order_name"></Input>
           </FormItem>
           <FormItem label="客户要求：">
               <Input v-model="orderData.client_request"></Input>

@@ -15,6 +15,7 @@
     <Modal
       v-model="showStatusDtl"
       width="800px"
+      @on-ok="setStatusMany"
       title="订单详情">
       <Table border :columns="columns2" :data="statusTableData" class="orderTable"></Table>      
     </Modal>
@@ -142,29 +143,34 @@ export default {
       columns1: [
         {
           title: '订单号',
+          width: 80,
           key: 'orderNo'
         },
         {
           title: '订单类型',
-          width: 180,
+          width: 120,
           key: 'orderType'
         },
         {
           title: '创建时间',
-          width: 180,
+          width: 120,
           key: 'createTime'
         },
         {
-          title: '订单名称',
-          key: 'orderName'
+          title: '单价',
+          key: 'price'
+        },
+        {
+          title: '抛光单价',
+          key: 'pg_price'
         },
         {
           title: '订单数量',
-          width: 100,
+          width: 120,
           key: 'orderMany',
           render: (h,params)=>{
             return h('span',{
-              style:{color:'#2db7f5', cursor: 'pointer'},
+              style:{color:'#2db7f5', cursor: 'pointer',fontSize: '16px'},
               on: {
                 click: () => {
                   this.getStatusDtl(params.row.orderNo)
@@ -269,7 +275,25 @@ export default {
         },
         {
           title: '生产个数',
-          key: 'statusMany'
+          key: 'statusMany',
+          render: (h,params)=>{
+            return h('InputNumber',{
+              props: {
+                value: params.row.statusMany,
+                formatter: value => `${Math.round(value)}`,
+                parser: value => `${Math.round(value)}`,
+                min: 1
+              },
+              style: { width: "120px", textAlign: "center" },
+              on: {
+                input: e => {
+                  e = Math.round(e)
+                  this.$set(this.statusTableData[params.index],'statusMany', e)
+                  this.moneyChanged=true
+                }
+              }
+            })
+          }
         },
         {
           title: '完成时间',
@@ -291,7 +315,8 @@ export default {
       totalLen: 1,
       statusTableData: [],
       showStatusDtl: false,
-      userInfo: JSON.parse(localStorage.getItem('userInfo'))
+      userInfo: JSON.parse(localStorage.getItem('userInfo')),
+      moneyChanged: false,
     }
   },
   mounted() {
@@ -300,6 +325,24 @@ export default {
   methods: {
     ...mapActions([
     ]),
+    setStatusMany() {
+      //修改订单数量
+      if(!this.moneyChanged){
+        return
+      }
+      var params ={
+        statusTableData: this.statusTableData,
+        token: this.userInfo.token,
+      }
+      this.$http.post('/jyadmin/api/order/setStatusMany', params).then((res) => {
+        this.moneyChanged=false
+        if(res.data.status==0){
+          this.$Message.success('修改成功')
+        }else{
+          this.$Message.error('修改失败')
+        }
+      })
+    },
     deleteOrder(orderNo) {
       this.$Modal.confirm({
         content: '确定要删除这笔订单吗？',
@@ -328,7 +371,7 @@ export default {
         order_no: orderNo
       }
       this.$http.post('/jyadmin/api/order/getStatusDtl', params).then((res) => {
-        console.log(res, '')
+        console.log(res.data.data, '')
         if(res.data.status==0){
           var data = res.data.data
           var arr = []
@@ -336,6 +379,8 @@ export default {
             for(var i=0;i<data.length;i++){
               arr.push({
                 userName: data[i].user_name,
+                user_id: data[i].user_id,
+                order_no: data[i].order_no,
                 workType: data[i].work_type,
                 statusMany: data[i].status_many,
                 confrimTime: data[i].confrim_time
@@ -475,6 +520,8 @@ export default {
           clientNo: newVal[i].client_no,
           clientRequest: newVal[i].client_request,
           orderRemark: newVal[i].order_remark,
+          price: newVal[i].price,
+          pg_price: newVal[i].pg_price,
           orderType: orderType
         })
       }

@@ -129,7 +129,7 @@ router.post('/addOrder', (req, res) => {
                 if (result.length>0) {
                     return res.json({data: '订单号已存在！', status: -1})
                 }else{
-                    conn.query(sql, [params.order_no,params.create_time,params.order_status,params.order_name,params.order_many,params.client_name,params.order_format,params.client_no,params.client_request,params.order_remark,params.order_type], function(err, result) {
+                    conn.query(sql, [params.order_no,params.create_time,params.order_status,params.order_name,params.order_many,params.client_name,params.order_format,params.client_no,params.client_request,params.order_remark,params.order_type,params.price,params.pg_price], function(err, result) {
                         if (err) {
                             console.log(err)
                         }
@@ -184,7 +184,6 @@ router.post('/setOrderItem', (req, res) => {
             sql = str+' '
             if(_.isEmpty(params.order_no)){
                 return res.json({data: '订单号为空！',status: -1})
-                return
             }
             sql+='where order_no = ?'
             dataArr.push(params.order_no)
@@ -249,6 +248,7 @@ router.post('/deleteOrder', (req, res) => {
     })
 })
 
+//获取员工工资
 router.post('/getWageDtl', (req, res) => {
     var sql = $sql.order.getWageDtl
     var sql2= $sql.order.getWageDtl2
@@ -268,7 +268,7 @@ router.post('/getWageDtl', (req, res) => {
                         if(result2!='err'){
                             obj.price=result2[0].price
                                 obj.pg_price=result2[0].pg_price
-                                if(params.is_master==0){
+                                if(params.work_type==6){
                                     //抛光小计
                                     obj.xiaoji=result2[0].pg_price*obj.status_many
                                 }else{
@@ -293,4 +293,26 @@ router.post('/getWageDtl', (req, res) => {
     })
 })
 
+//修改员工生产数量
+router.post('/setStatusMany', (req, res) => {
+    var sql = $sql.order.setStatusMany
+    var params = req.body
+    checkToken(res, params.token).then(data => {
+        if(data){
+            async function getRst(){
+                for(var i in params.statusTableData){
+                    var data = params.statusTableData[i]
+                    var result = await common.asyncQuery(sql, [data.statusMany, data.order_no, data.user_id])
+                    if(result=='err'){
+                        return res.json({data: '修改失败',status: -1})
+                    }else{
+                        continue
+                    }
+                }
+                return res.json({data: '修改成功',status: 0})
+            }
+            getRst()
+        }
+    })
+})
 module.exports = router

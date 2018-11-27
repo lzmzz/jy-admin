@@ -8,7 +8,7 @@ common.asyncQuery = function(sql, params){
     //sql语句，params数组
     return new Promise(resolve => {
         conn.query(sql, params, function(err, result) {
-            if(result.length>0){
+            if(result){
                 resolve(result)
             }else{
                 resolve('err')

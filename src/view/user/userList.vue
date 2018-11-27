@@ -12,51 +12,44 @@
     <Modal
       v-model="showStatusDtl"
       width="1200px"
-      title="订单详情">
-      <Table border :columns="columns2" :data="statusTableData" class="orderTable"></Table>      
+      title="工资详情">
+      <Table border :columns="columns2" :data="statusTableData" class="orderTable gzTable"></Table>      
+      <div slot="footer" class="modalFt">
+        <div>
+          总计：<span class="ygWage">{{ygWage}}</span>
+        </div>
+        <div>
+          <Button type="primary" @click="showStatusDtl=false">确定</Button>
+        </div>
+      </div>
     </Modal>
     <Modal
-      v-model="showOrderDtl"
-      title="修改订单">
-        <Form ref="orderData" :model="orderData" label-position="right" :label-width="100" :rules="orderValidate">
-          <FormItem label="订单号：" prop="order_no">
-            <p>{{orderData.order_no}}</p>
+      v-model="showUserDtl"
+      title="修改信息">
+        <Form ref="userData" :model="userData" label-position="right" :label-width="100" :rules="orderValidate">
+          <FormItem label="员工姓名：" prop="name">
+            <Input v-model="userData.name"></Input>
           </FormItem>
-          <FormItem label="订单类型：" prop="order_type">
-            <RadioGroup v-model="orderData.order_type">
-              <Radio :label="0">出货生产单</Radio>
-              <Radio :label="1">库存生产单</Radio>
+          <FormItem label="登录密码：" prop="pwd">
+            <Input v-model="userData.pwd"></Input>
+          </FormItem>
+          <FormItem label="电话号码：" prop="tel">
+            <Input v-model="userData.tel"></Input>
+          </FormItem>
+          <FormItem label="车间师傅：" prop="order_type">
+            <RadioGroup v-model="userData.is_master">
+              <Radio :label="0">是</Radio>
+              <Radio :label="1">否</Radio>
           </RadioGroup>
           </FormItem>
-          <FormItem label="订单名：" prop="order_name">
-            <Input v-model="orderData.order_name"></Input>
-          </FormItem>
-          <FormItem label="订单状态：" prop="order_status">
-            <Select v-model="orderData.order_status" :value="statusArr[orderData.order_status]">
+          <FormItem label="工种：" prop="work_type">
+            <Select v-model="userData.work_type" :value="statusArr[userData.work_type]">
               <Option :value="index" v-for="(item,index) in statusArr" :key="index">{{item}}</Option>
             </Select>
           </FormItem>
-          <FormItem label="订单数量：" prop="order_many">
-            <Input v-model="orderData.order_many"></Input>
-          </FormItem>
-          <FormItem label="客户名称：" prop="client_name">
-            <Input v-model="orderData.client_name"></Input>
-          </FormItem>
-          <FormItem label="订单规格：" prop="order_format">
-            <Input v-model="orderData.order_format"></Input>
-          </FormItem>
-          <FormItem label="客户编号：" prop="client_no">
-            <Input v-model="orderData.client_no"></Input>
-          </FormItem>
-          <FormItem label="客户要求：">
-            <Input v-model="orderData.client_request"></Input>
-          </FormItem>
-          <FormItem label="订单备注：">
-            <Input v-model="orderData.order_remark" type="textarea"></Input>
-          </FormItem>
       </Form>
       <div slot="footer">
-        <Button type="primary" @click="setOrderDtl('orderData')" :loading="orderDlgLoad">确定</Button>
+        <Button type="primary" @click="setUserDtl('userData')" :loading="userDlgLoad">确定</Button>
       </div>
     </Modal>
   </div>
@@ -72,7 +65,7 @@ export default {
         tel: '',
         work_type: '',
       },
-       orderData: {
+       userData: {
         order_no: "",
         order_name: "",
         order_many: "",
@@ -86,12 +79,9 @@ export default {
       },
       statusArr: ['开料师傅','拉伸师傅','油压师傅','车床师傅','巴位师傅','米位/甲位师傅','抛光师傅','打字师傅','清洗师傅','包装师傅', '全部'],
       orderValidate: {
-        order_no: [{required: true, message: "订单号不能为空",}],
-        order_name: [{required: true, message: "订单名不能为空",}],
-        order_many: [{required: true, type: "number", message: "订单数量不能为空",}],
-        client_name: [{ required: true, message: "客户名称不能为空",  }],
-        order_format: [{required: true, message: "订单规格不能为空", }],
-        client_no: [{ required: true, message: "客户编号不能为空",  }],
+        tel: [{required: true, message: "手机号不能为空",}],
+        pwd: [{required: true, message: "密码不能为空",}],
+        name: [{required: true, message: "姓名不能为空",}],
       },
       options3: {
         disabledDate (date) {
@@ -174,7 +164,7 @@ export default {
               style:{color: '#2d8cf0', cursor: 'pointer', fontSize: '16px'},
               on: {
                 click: () => {
-                  this.getWageDtl(params.row.user_id, params.row.is_master)
+                  this.getWageDtl(params.row.user_id, params.row.work_type)
                 }
               }
             },'点击查看')
@@ -196,7 +186,7 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.openOrderDtl(params.row.orderNo)
+                    this.openUserDtl(params.row.user_id)
                   }
                 }
               },'修改'),
@@ -207,7 +197,7 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.deleteOrder(params.row.orderNo)
+                    this.deleteOrder(params.row.user_id)
                   }
                 }
               },'删除')
@@ -269,14 +259,15 @@ export default {
       ],
       userList: [],
       userTableData: [],
-      showOrderDtl: false,
-      orderDlgLoad: false,
-      oldOrderData: {},
+      showUserDtl: false,
+      userDlgLoad: false,
+      oldUserData: {},
       activePage: 1,
       totalLen: 1,
       statusTableData: [],
       showStatusDtl: false,
-      userInfo: JSON.parse(localStorage.getItem('userInfo'))
+      userInfo: JSON.parse(localStorage.getItem('userInfo')),
+      ygWage: 0,
     }
   },
   mounted() {
@@ -285,22 +276,22 @@ export default {
   methods: {
     ...mapActions([
     ]),
-    deleteOrder(orderNo) {
+    deleteOrder(user_id) {
       this.$Modal.confirm({
-        content: '确定要删除这笔订单吗？',
+        content: '确定要删除这个员工吗？',
         loading: true,
         onOk: ()=>{
           this.$Modal.remove()
           var params = {
             token: this.userInfo.token,
-            order_no: orderNo
+            user_id: user_id
           }
-          this.$http.post('/jyadmin/api/order/deleteOrder', params).then((res) => {
+          this.$http.post('/jyadmin/api/user/deleteUser', params).then((res) => {
             this.getUserList()
             if(res.data.status==0){
-              this.$Message.success('删除成功')
+              this.$Message.success(res.data.data)
             }else{
-              this.$Message.success('系统错误')
+              this.$Message.error(res.data.data)
             }
           })
         }
@@ -318,6 +309,7 @@ export default {
         if(res.data.status==0){
           var data = res.data.data
           var arr = []
+          this.ygWage=0
           if(data.length>0){
             for(var i=0;i<data.length;i++){
               arr.push({
@@ -330,6 +322,7 @@ export default {
                 pg_price: data[i].pg_price,
                 xiaoji: data[i].xiaoji,
               })
+              this.ygWage+=data[i].xiaoji
             }
           }
           this.statusTableData=arr
@@ -359,63 +352,58 @@ export default {
       this.activePage=activePage
       this.getUserList(this.filterData)
     },
-    setOrderDtl: function(name){
+    setUserDtl: function(name){
       //修改订单详情
-      this.orderDlgLoad = true
+      this.userDlgLoad = true
       this.$refs[name].validate((valid) => {
         if (valid) {
-          var newOrderData = {}
-          console.log(this.orderData.order_status,'order_status')
-          for(var item in this.orderData){
-            if(this.oldOrderData[item]!=this.orderData[item]){
-              newOrderData[item]=this.orderData[item]
+          var newUserData = {}
+          for(var item in this.userData){
+            if(this.oldUserData[item]!=this.userData[item]){
+              newUserData[item]=this.userData[item]
             }
           }
-          var params = newOrderData
+          var params = newUserData
           if(_.isEmpty(params)){
-            this.orderDlgLoad = false
-            this.showOrderDtl=false
+            this.userDlgLoad = false
+            this.showUserDtl=false
             return
           }
-          params.order_no = this.orderData.order_no
           params.token=this.userInfo.token
-          this.$http.post('/jyadmin/api/order/setOrderItem', params).then((res) => {
+          params.user_id = this.userData.user_id
+          this.$http.post('/jyadmin/api/user/setUserItem', params).then((res) => {
             this.getUserList(this.filterData)
-            this.orderDlgLoad = false
-            this.showOrderDtl=false
+            this.userDlgLoad = false
+            this.showUserDtl=false
             this.$Message.info(res.data.data)
           }).catch(err => {
             console.log(err)
           })
         } else {
-          this.orderDlgLoad = false
+          this.userDlgLoad = false
           this.$Message.error('订单信息有误，请修改')
         }
       })
     },
-    openOrderDtl: function(orderNo){
-      //打开订单详情
+    openUserDtl: function(user_id){
+      //打开员工详情
       // params.token=this.token
       var params = {}
-      params.orderNo=orderNo
+      params.user_id=user_id
       params.token=this.userInfo.token
-      this.$http.post('/jyadmin/api/order/getOrderItem', params).then((res) => {
+      this.$http.post('/jyadmin/api/user/getUserItem', params).then((res) => {
         if(res.data.status==0){
           var data = res.data.data
-          this.orderData={
-            order_no: data.order_no,
-            order_name: data.order_name,
-            order_many: data.order_many,
-            client_name: data.client_name,
-            order_format: data.order_format,
-            client_no: data.client_no,
-            client_request: data.client_request,
-            order_remark: data.order_remark,
-            order_status: data.order_status,
-            order_type: data.order_type
+          this.userData={
+            is_master: parseInt(data.is_master),
+            name: data.name,
+            pwd: data.pwd,
+            tel: data.tel,
+            work_type: data.work_type,
+            user_id: data.id,
           }
-          this.oldOrderData = JSON.parse(JSON.stringify(this.orderData))
-          this.showOrderDtl = true
+          this.oldUserData = JSON.parse(JSON.stringify(this.userData))
+          this.showUserDtl = true
         }else{
           this.$Message.error(res.data.data)
         }
@@ -461,11 +449,20 @@ export default {
 .filterPanel .ivu-input-wrapper{width: 120px;margin-right: 20px;}
 .filterPanel .ivu-btn{margin-left: 20px;}
 .panelPanel{margin: 20px;display: flex;justify-content: flex-end;}
+.modalFt{display: flex;justify-content: space-between;align-items: center;font-size: 18px;}
+
+@keyframes scaleAni{
+  0%{transform: scale(1)}
+  50%{transform: scale(1.5)}
+  100%{transform: scale(1)}
+}
+.ygWage{font-weight: bold;color: #19be6b;}
 </style>
 
 <style>
 .orderTable .operationBox{display: flex;justify-content: space-between;}
 .orderTable .ivu-table-cell{text-align: center;width: 100%;}
+.gzTable table{max-height: 400px;}
 .vertical-center-modal{display: flex;align-items: center;justify-content: center;}
 .vertical-center-modal .ivu-modal{top: 0px;}
 .filterPanel .ivu-select{width: 120px;}

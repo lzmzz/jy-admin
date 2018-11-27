@@ -4,6 +4,8 @@ var router = express.Router()
 var mysql = require('mysql')
 var $sql = require('../sqlMap')
 var _ = require('lodash')
+var common = require('./common')
+
 // 连接数据库
 var conn = mysql.createConnection(models.mysql)
 conn.multipleStatements=true
@@ -96,6 +98,24 @@ router.post('/getUserInfo', (req, res) => {
     })
 })
 
+// 增加用户接口
+router.post('/addUser', (req, res) => {
+    var sql = $sql.user.addUser
+    var params = req.body
+    checkToken(res, params.token).then(data => {
+        if(data){
+            conn.query(sql, [params.name, params.tel, params.work_type, params.pwd, params.is_master], function(err, result) {
+                if (result) {
+                    return res.json({data: '添加成功', status: 0})
+                }else{
+                    return res.json({data: '添加失败', status: -1})
+                }
+            })
+        }
+    })
+})
+
+//用户列表
 router.post('/getUserList', (req, res) => {
     var sql = $sql.user.getUserList
     var params = req.body
@@ -142,6 +162,75 @@ router.post('/getUserList', (req, res) => {
             
         }
     })
-    
+})
+
+//用户详情
+router.post('/getUserItem', (req, res) => {
+    var sql = $sql.user.getUserItem
+    var params = req.body
+    checkToken(res, params.token).then(data => {
+        if(data){
+            async function getRst(){
+                var result = await common.asyncQuery(sql, [params.user_id])
+                if(result!='err'){
+                    return res.json({data: result[0], status: 0})
+                }else{
+                    return res.json({data: '修改失败', status: -1})
+                }
+            }
+            getRst()
+        }
+    })
+})
+
+//修改用户详情
+router.post('/setUserItem', (req, res) => {
+    var sql = $sql.user.setUserItem
+    var params = req.body
+    checkToken(res, params.token).then(data => {
+        if(data){
+            var dataArr = []
+            for(var item in params){
+                if(item!='user_id'&&item!='token'){
+                    sql+=item+'=?, '
+                    dataArr.push(params[item])
+                }
+            }
+            var str = sql.substring(0,sql.lastIndexOf(', '))
+            sql = str+' '
+            sql+='where id = ?'
+            dataArr.push(params.user_id)
+            console.log('sql', sql)
+            async function getRst(){
+                var result = await common.asyncQuery(sql, dataArr)
+                if(result!='err'){
+                    return res.json({data: '修改成功', status: 0})
+                }else{
+                    return res.json({data: '修改失败', status: -1})
+                }
+            }
+            getRst()
+        }
+    })
+})
+
+
+//删除员工
+router.post('/deleteUser', (req, res) => {
+    var sql = $sql.user.deleteUser
+    var params = req.body
+    checkToken(res, params.token).then(data => {
+        if(data){
+            async function getRst(){
+                var result = await common.asyncQuery(sql, [params.user_id])
+                if(result!='err'){
+                    return res.json({data: '删除成功', status: 0})
+                }else{
+                    return res.json({data: '删除失败', status: -1})
+                }
+            }
+            getRst()
+        }
+    })
 })
 module.exports = router
