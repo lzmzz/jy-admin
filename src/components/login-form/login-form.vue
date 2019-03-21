@@ -69,7 +69,8 @@ export default {
               this.$Message.success('登录成功')
               localStorage.setItem('userInfo', JSON.stringify(res.data.data))
               this.$router.push({
-                name: 'home'
+                path: '/home',
+                name: 'home',
               })
             }
           }).catch(err => {

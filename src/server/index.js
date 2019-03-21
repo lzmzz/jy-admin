@@ -3,6 +3,7 @@ const userApi = require('./api/userApi')
 const orderApi = require('./api/orderApi')
 const fs = require('fs')
 const path = require('path')
+//bodyParser 第三方中间件 用于获取http的req数据
 const bodyParser = require('body-parser')
 const express = require('express')
 const app = express()
@@ -21,7 +22,7 @@ app.use(bodyParser.urlencoded({extended: false}))
 // app.get('/', function (req, res) {
 //   res.sendFile('./views/index.html')
 // })
-app.use(express.static(path.join(__dirname, 'dist')))
+app.use(express.static(path.join(__dirname, 'dist')))//静态文件目录
 // 后端api路由
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname+'/dist/index.html'))
