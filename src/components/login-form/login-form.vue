@@ -70,7 +70,6 @@ export default {
               localStorage.setItem('userInfo', JSON.stringify(res.data.data))
               this.$router.push({
                 path: '/home',
-                name: 'home',
               })
             }
           }).catch(err => {
