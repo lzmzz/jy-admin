@@ -18,8 +18,8 @@
           </FormItem>
           <FormItem label="车间师傅：" prop="is_master">
             <RadioGroup v-model="userData.is_master">
-              <Radio :label="0">是</Radio>
-              <Radio :label="1">否</Radio>
+              <Radio :label="1">是</Radio>
+              <Radio :label="0">否</Radio>
           </RadioGroup>
           </FormItem>
           <Button type="primary" @click="addUser('userData')" class="addBtn" :loading="loadingBtn">确定</Button>

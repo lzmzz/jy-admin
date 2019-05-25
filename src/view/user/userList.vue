@@ -67,7 +67,6 @@ export default {
       },
        userData: {
         order_no: "",
-        order_name: "",
         order_many: "",
         client_name: "",
         order_format: "",

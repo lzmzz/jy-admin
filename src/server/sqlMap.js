@@ -17,7 +17,7 @@ var sqlMap = {
     order: {
         getOrderList: 'select * from `order`',
         getOrderCount: 'select count(*) from `order`',
-        addOrder: 'insert into `order` (order_no, create_time, order_status, order_name, order_many, client_name, order_format, client_no, client_request, order_remark, order_type, price, pg_price) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        addOrder: 'insert into `order` (order_no, create_time, order_status, order_many, client_name, order_format, client_no, client_request, order_remark, order_type, price, kl_price, ls_price, yy_price, cc_price, bw_price, mw_price, pg_price, dz_price, qx_price, bz_price) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         getOrderItem: 'select * from `order` where order_no = ?',
         setOrderItem: 'update `order` set ',
         getStatusDtl: 'select status_many, work_type, user_name, confrim_time, user_id, order_no from `status_details` where order_no = ?',

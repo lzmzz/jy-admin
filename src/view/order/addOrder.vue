@@ -23,14 +23,38 @@
           <FormItem label="订单单价（元）：" prop="price">
               <Input v-model="orderData.price"></Input>
           </FormItem>
+          <FormItem label="开料单价（元）：" prop="kl_price">
+              <Input v-model="orderData.kl_price"></Input>
+          </FormItem>
+          <FormItem label="拉伸单价（元）：" prop="ls_price">
+              <Input v-model="orderData.ls_price"></Input>
+          </FormItem>
+          <FormItem label="油压单价（元）：" prop="yy_price">
+              <Input v-model="orderData.yy_price"></Input>
+          </FormItem>
+          <FormItem label="车床单价（元）：" prop="cc_price">
+              <Input v-model="orderData.cc_price"></Input>
+          </FormItem>
+          <FormItem label="巴位单价（元）：" prop="bw_price">
+              <Input v-model="orderData.bw_price"></Input>
+          </FormItem>
+          <FormItem label="米位单价（元）：" prop="mw_price">
+              <Input v-model="orderData.mw_price"></Input>
+          </FormItem>
           <FormItem label="抛光单价（元）：" prop="pg_price">
               <Input v-model="orderData.pg_price"></Input>
           </FormItem>
+          <FormItem label="打字单价（元）：" prop="dz_price">
+              <Input v-model="orderData.dz_price"></Input>
+          </FormItem>
+          <FormItem label="清洗单价（元）：" prop="qx_price">
+              <Input v-model="orderData.qx_price"></Input>
+          </FormItem>
+          <FormItem label="包装单价（元）：" prop="bz_price">
+              <Input v-model="orderData.bz_price"></Input>
+          </FormItem>
           <FormItem label="客户编号：" prop="client_no">
               <Input v-model="orderData.client_no"></Input>
-          </FormItem>
-          <FormItem label="订单名：">
-              <Input v-model="orderData.order_name"></Input>
           </FormItem>
           <FormItem label="客户要求：">
               <Input v-model="orderData.client_request"></Input>
@@ -52,7 +76,6 @@ export default {
       loadingBtn: false,
       orderData: {
         order_no: "",
-        order_name: "",
         order_many: "",
         client_name: "",
         order_format: "",
@@ -62,6 +85,15 @@ export default {
         order_type: 0,
         price: 0,
         pg_price: 0,
+        kl_price: 0,
+        ls_price: 0,
+        yy_price: 0,
+        cc_price: 0,
+        bw_price: 0,
+        mw_price: 0,
+        dz_price: 0,
+        qx_price: 0,
+        bz_price: 0,
       },
       token: JSON.parse(localStorage.getItem('userInfo')).token,
       orderValidate: {
@@ -69,13 +101,6 @@ export default {
           {
             required: true,
             message: "订单号不能为空",
-            trigger: "blur"
-          }
-        ],
-        order_name: [
-          {
-            required: true,
-            message: "订单名不能为空",
             trigger: "blur"
           }
         ],
@@ -101,12 +126,6 @@ export default {
         ],
         order_type: [
           { required: true, message: "请选择订单类型" }
-        ],
-        price: [
-          { required: true, message: "请输入订单单价" }
-        ],
-        pg_price: [
-          { required: true, message: "请输入抛光单价" }
         ],
       }
     };

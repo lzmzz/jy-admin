@@ -22,7 +22,7 @@
     <Modal
       v-model="showOrderDtl"
       title="修改订单">
-        <Form ref="orderData" :model="orderData" label-position="right" :label-width="100" :rules="orderValidate">
+        <Form ref="orderData" :model="orderData" label-position="right" :label-width="120" :rules="orderValidate" >
           <FormItem label="订单号：" prop="order_no">
             <p>{{orderData.order_no}}</p>
           </FormItem>
@@ -31,9 +31,6 @@
               <Radio :label="0">出货生产单</Radio>
               <Radio :label="1">库存生产单</Radio>
           </RadioGroup>
-          </FormItem>
-          <FormItem label="订单名：" prop="order_name">
-            <Input v-model="orderData.order_name"></Input>
           </FormItem>
           <FormItem label="订单状态：" prop="order_status">
             <Select v-model="orderData.order_status" :value="statusArr[orderData.order_status]">
@@ -48,6 +45,39 @@
           </FormItem>
           <FormItem label="订单规格：" prop="order_format">
             <Input v-model="orderData.order_format"></Input>
+          </FormItem>
+          <FormItem label="订单单价（元）：" prop="price">
+              <Input v-model="orderData.price"></Input>
+          </FormItem>
+          <FormItem label="开料单价（元）：" prop="kl_price">
+              <Input v-model="orderData.kl_price"></Input>
+          </FormItem>
+          <FormItem label="拉伸单价（元）：" prop="ls_price">
+              <Input v-model="orderData.ls_price"></Input>
+          </FormItem>
+          <FormItem label="油压单价（元）：" prop="yy_price">
+              <Input v-model="orderData.yy_price"></Input>
+          </FormItem>
+          <FormItem label="车床单价（元）：" prop="cc_price">
+              <Input v-model="orderData.cc_price"></Input>
+          </FormItem>
+          <FormItem label="巴位单价（元）：" prop="bw_price">
+              <Input v-model="orderData.bw_price"></Input>
+          </FormItem>
+          <FormItem label="米位单价（元）：" prop="mw_price">
+              <Input v-model="orderData.mw_price"></Input>
+          </FormItem>
+          <FormItem label="抛光单价（元）：" prop="pg_price">
+              <Input v-model="orderData.pg_price"></Input>
+          </FormItem>
+          <FormItem label="打字单价（元）：" prop="dz_price">
+              <Input v-model="orderData.dz_price"></Input>
+          </FormItem>
+          <FormItem label="清洗单价（元）：" prop="qx_price">
+              <Input v-model="orderData.qx_price"></Input>
+          </FormItem>
+          <FormItem label="包装单价（元）：" prop="bz_price">
+              <Input v-model="orderData.bz_price"></Input>
           </FormItem>
           <FormItem label="客户编号：" prop="client_no">
             <Input v-model="orderData.client_no"></Input>
@@ -81,20 +111,28 @@ export default {
       },
        orderData: {
         order_no: "",
-        order_name: "",
         order_many: "",
         client_name: "",
         order_format: "",
         client_no: "",
-        client_request: "",
         order_remark: "",
-        order_status: "",
+        client_request: "",
         order_type: 0,
+        price: 0,
+        pg_price: 0,
+        kl_price: 0,
+        ls_price: 0,
+        yy_price: 0,
+        cc_price: 0,
+        bw_price: 0,
+        mw_price: 0,
+        dz_price: 0,
+        qx_price: 0,
+        bz_price: 0,
       },
       statusArr: ['开料中','拉伸中','油压中','车床中','巴位中','米位/甲位中','抛光中','打字中','清洗中','包装中','已完成'],
       orderValidate: {
         order_no: [{required: true, message: "订单号不能为空",}],
-        order_name: [{required: true, message: "订单名不能为空",}],
         order_many: [{required: true, type: "number", message: "订单数量不能为空",}],
         client_name: [{ required: true, message: "客户名称不能为空",  }],
         order_format: [{required: true, message: "订单规格不能为空", }],
@@ -457,18 +495,7 @@ export default {
       this.$http.post('/jyadmin/api/order/getOrderItem', params).then((res) => {
         if(res.data.status==0){
           var data = res.data.data
-          this.orderData={
-            order_no: data.order_no,
-            order_name: data.order_name,
-            order_many: data.order_many,
-            client_name: data.client_name,
-            order_format: data.order_format,
-            client_no: data.client_no,
-            client_request: data.client_request,
-            order_remark: data.order_remark,
-            order_status: data.order_status,
-            order_type: data.order_type
-          }
+          this.orderData=data
           this.oldOrderData = JSON.parse(JSON.stringify(this.orderData))
           this.showOrderDtl = true
         }else{
@@ -512,7 +539,6 @@ export default {
         this.orderTableData.push({
           orderNo: newVal[i].order_no,
           createTime: createTime,
-          orderName: newVal[i].order_name,
           orderMany: newVal[i].order_many,
           orderFormat: newVal[i].order_format,
           orderStatus: newVal[i].order_status,
@@ -542,4 +568,8 @@ export default {
 .orderTable .ivu-table-cell{text-align: center;width: 100%;}
 .vertical-center-modal{display: flex;align-items: center;justify-content: center;}
 .vertical-center-modal .ivu-modal{top: 0px;}
+.ivu-modal-body{
+  max-height: 600px;
+  overflow-y: auto;
+}
 </style>

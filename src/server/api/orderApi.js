@@ -113,10 +113,14 @@ router.post('/addOrder', (req, res) => {
         status: -1
       })
     } else {
-      conn.query(sql, [params.order_no, params.create_time, params.order_status, params.order_name, params.order_many, params.client_name, params.order_format, params.client_no, params.client_request, params.order_remark, params.order_type, params.price, params.pg_price], function (err, result) {
-        if (err) {
-          console.log(err)
-        }
+      conn.query(sql, 
+        [params.order_no, params.create_time, params.order_status, params.order_many, params.client_name, params.order_format,
+          params.client_no, params.client_request, params.order_remark, params.order_type, params.price, params.kl_price, params.ls_price,
+          params.yy_price, params.cc_price, params.bw_price, params.mw_price, params.pg_price, params.dz_price, params.qx_price, params.bz_price],
+        function (err, result) {
+          if (err) {
+            console.log(err)
+          }
         if (result) {
           return res.json({
             data: '新增订单成功',
