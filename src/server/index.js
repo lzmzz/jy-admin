@@ -24,14 +24,15 @@ app.use(bodyParser.urlencoded({extended: false}))
 // })
 app.use(express.static(path.join(__dirname, 'dist')))//静态文件目录
 // 后端api路由
-app.get('/', function (req, res) {
+app.get('/jyadmin', function (req, res) {
   res.sendFile(path.join(__dirname+'/dist/index.html'))
 })
-app.use('/jyadmin/api/', function(req, res, next){
-  if(req.body.token){
+app.use('/jyadmin/api', function(req, res, next){
+  console.log(req.url);
+  if(req.url!='/user/login'){
     //传了token表示要验证
-    common.checkToken(req.body.token).then(res=>{
-      if(!res){
+    common.checkToken(req.body.token).then(res1=>{
+      if(!res1){
         res.json({data: '登录失效', status: -1})    
         return false
       }else{

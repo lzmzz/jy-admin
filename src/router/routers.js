@@ -14,23 +14,31 @@ export default [
   {
     path: '/',
     name: 'index',
-    redirect: '/home',
+    redirect: '/home/home',
     component: Main,
     meta: {
       hideInMenu: true,
       notCache: true
+    }
+  },
+  {
+    path: '/home',
+    name: 'home',
+    meta: {
+      hideInMenu: true,
+      notCache: true
     },
-    children: [
-      {
-        path: '/home',
-        name: 'home',
-        meta: {
-          hideInMenu: true,
-          notCache: true
-        },
-        component: () => import('@/view/single-page/home')
-      }
-    ]
+    component: Main,
+    children:[{
+      path: 'home',
+      name: 'home',
+      meta: {
+        icon: 'arrow-graph-up-right',
+        title: '首页'
+      },
+      component: () => import('@/view/single-page/home')
+    }]
+    
   },
   {
     path: '/order',

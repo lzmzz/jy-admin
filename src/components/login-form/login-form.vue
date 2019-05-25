@@ -57,6 +57,7 @@ export default {
     }
   },
   methods: {
+    //aaa
     handleSubmit () {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
@@ -69,7 +70,7 @@ export default {
               this.$Message.success('登录成功')
               localStorage.setItem('userInfo', JSON.stringify(res.data.data))
               this.$router.push({
-                path: '/home',
+                path: '/order/orderList',
               })
             }
           }).catch(err => {
