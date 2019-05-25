@@ -270,14 +270,30 @@ router.post('/getWageDtl', (req, res) => {
         var obj = result[i]
         var result2 = await common.asyncQuery(sql2, [result[i].order_no])
         if (result2 != 'err') {
-          obj.price = result2[0].price
-          obj.pg_price = result2[0].pg_price
-          if (params.work_type == 6) {
-            //抛光小计
-            obj.xiaoji = result2[0].pg_price * obj.status_many
-          } else {
-            obj.xiaoji = result2[0].price * obj.status_many
+          if (params.work_type == 0) {
+            obj.price = result2[0].kl_price
+            obj.xiaoji = obj.price * obj.status_many
+          } else if(params.work_type == 1) {
+            obj.price = result2[0].ls_price
+          } else if(params.work_type == 2) {
+            obj.price = result2[0].yy_price
+          } else if(params.work_type == 3) {
+            obj.price = result2[0].cc_price
+          } else if(params.work_type == 4) {
+            obj.price = result2[0].bw_price
+          } else if(params.work_type == 5) {
+            obj.price = result2[0].mw_price
+          } else if(params.work_type == 6) {
+            obj.price = result2[0].pg_price
+          } else if(params.work_type == 7) {
+            obj.price = result2[0].dz_price
+          } else if(params.work_type == 8) {
+            obj.price = result2[0].qx_price
+          } else if(params.work_type == 9) {
+            obj.price = result2[0].bz_price
           }
+          console.log(obj);
+          obj.xiaoji = obj.price * obj.status_many
           lsArr.push(obj)
         } else {
           res.json({

@@ -23,17 +23,24 @@ export default {
           path: '/login'
         })
       }else{
-        
+        if(this.userInfo.work_type!=999){
+          this.$router.push({
+            path: '/login'
+          })
+        }
       }
     }
   },
   watch: {
     $route: {
       handler(newVal){
-        if(newVal.path!='/login'&&_.isEmpty(JSON.parse(localStorage.getItem('userInfo')))){
-          this.$router.push({
-          path: '/login'
-        })
+        
+        if(newVal.path!='/login'){
+          if(_.isEmpty(JSON.parse(localStorage.getItem('userInfo')))){
+            this.$router.push({
+              path: '/login'
+            })
+          }
         }
       },
       deep: true

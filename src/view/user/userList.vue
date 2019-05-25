@@ -243,10 +243,6 @@ export default {
           key: 'price'
         },
         {
-          title: '抛光单价',
-          key: 'pg_price'
-        },
-        {
           title: '小计',
           key: 'xiaoji',
           render: (h,params)=>{
@@ -296,12 +292,12 @@ export default {
         }
       })
     },
-    getWageDtl: function(user_id, is_master){
+    getWageDtl: function(user_id, work_type){
       //查看订单数量详情
       var params = {
         token: this.userInfo.token,
         user_id: user_id,
-        is_master: is_master=='是'?0:1,
+        work_type,
       }
       this.$http.post('/jyadmin/api/order/getWageDtl', params).then((res) => {
         console.log(res, '')
@@ -318,7 +314,6 @@ export default {
                 confrimTime: data[i].confrim_time,
                 order_no: data[i].order_no,
                 price: data[i].price,
-                pg_price: data[i].pg_price,
                 xiaoji: data[i].xiaoji,
               })
               this.ygWage+=data[i].xiaoji
