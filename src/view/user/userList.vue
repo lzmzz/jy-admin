@@ -38,8 +38,8 @@
           </FormItem>
           <FormItem label="车间师傅：" prop="order_type">
             <RadioGroup v-model="userData.is_master">
-              <Radio :label="0">是</Radio>
-              <Radio :label="1">否</Radio>
+              <Radio :label="1">是</Radio>
+              <Radio :label="0">否</Radio>
           </RadioGroup>
           </FormItem>
           <FormItem label="工种：" prop="work_type">
@@ -423,7 +423,7 @@ export default {
     userList: function(newVal){
       for(var i=0;i<newVal.length;i++){
         var createTime = this.timestampToTime(newVal[i].create_time)
-        var is_master = newVal[i].is_master==0? '是': '否'
+        var is_master = newVal[i].is_master==1? '是': '否'
         this.userTableData.push({
           name: newVal[i].name,
           work_type: newVal[i].work_type,
