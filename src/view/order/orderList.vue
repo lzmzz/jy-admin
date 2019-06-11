@@ -21,6 +21,7 @@
     </Modal>
     <Modal
       v-model="showOrderDtl"
+      class="orderModal"
       title="修改订单">
         <Form ref="orderData" :model="orderData" label-position="right" :label-width="120" :rules="orderValidate" >
           <FormItem label="订单号：" prop="order_no">
@@ -195,14 +196,6 @@ export default {
           key: 'createTime'
         },
         {
-          title: '单价',
-          key: 'price'
-        },
-        {
-          title: '抛光单价',
-          key: 'pg_price'
-        },
-        {
           title: '订单数量',
           width: 120,
           key: 'orderMany',
@@ -243,6 +236,10 @@ export default {
               style:{color:color}
             },text)
           }
+        },
+        {
+          title: '订单备注',
+          key: 'orderRemark'
         },
         {
           title: '客户名称',
@@ -568,7 +565,7 @@ export default {
 .orderTable .ivu-table-cell{text-align: center;width: 100%;}
 .vertical-center-modal{display: flex;align-items: center;justify-content: center;}
 .vertical-center-modal .ivu-modal{top: 0px;}
-.ivu-modal-body{
+.orderModal .ivu-modal-body{
   max-height: 600px;
   overflow-y: auto;
 }

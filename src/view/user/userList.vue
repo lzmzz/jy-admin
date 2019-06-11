@@ -43,8 +43,8 @@
           </RadioGroup>
           </FormItem>
           <FormItem label="工种：" prop="work_type">
-            <Select v-model="userData.work_type" :value="statusArr[userData.work_type]">
-              <Option :value="index" v-for="(item,index) in statusArr" :key="index">{{item}}</Option>
+            <Select v-model="userData.work_type" :value="statusArr2[userData.work_type]">
+              <Option :value="index" v-for="(item,index) in statusArr2" :key="index">{{item}}</Option>
             </Select>
           </FormItem>
       </Form>
@@ -77,6 +77,7 @@ export default {
         order_type: 0,
       },
       statusArr: ['开料师傅','拉伸师傅','油压师傅','车床师傅','巴位师傅','米位/甲位师傅','抛光师傅','打字师傅','清洗师傅','包装师傅', '全部'],
+      statusArr2: ['开料师傅','拉伸师傅','油压师傅','车床师傅','巴位师傅','米位/甲位师傅','抛光师傅','打字师傅','清洗师傅','包装师傅'],
       orderValidate: {
         tel: [{required: true, message: "手机号不能为空",}],
         pwd: [{required: true, message: "密码不能为空",}],
@@ -225,6 +226,14 @@ export default {
           key: 'order_no'
         },
         {
+          title: '规格',
+          key: 'order_format'
+        },
+        {
+          title: '备注',
+          key: 'order_remark'
+        },
+        {
           title: '生产个数',
           key: 'statusMany'
         },
@@ -313,6 +322,8 @@ export default {
                 statusMany: data[i].status_many,
                 confrimTime: data[i].confrim_time,
                 order_no: data[i].order_no,
+                order_remark: data[i].order_remark,
+                order_format: data[i].order_format,
                 price: data[i].price,
                 xiaoji: data[i].xiaoji,
               })

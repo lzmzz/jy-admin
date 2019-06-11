@@ -40,6 +40,16 @@ export default {
             this.$router.push({
               path: '/login'
             })
+          }else{
+            let params = {}
+            this.$http.post('/jyadmin/api/user/getUserInfo', {token: JSON.parse(localStorage.getItem('userInfo')).token}).then((res) => {
+              if(res.data.status==-1){
+                this.$router.push({
+                  path: '/login'
+                })  
+                this.$Message.info(res.data.data)
+              }
+            })
           }
         }
       },

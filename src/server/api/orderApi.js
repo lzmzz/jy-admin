@@ -272,7 +272,6 @@ router.post('/getWageDtl', (req, res) => {
         if (result2 != 'err') {
           if (params.work_type == 0) {
             obj.price = result2[0].kl_price
-            obj.xiaoji = obj.price * obj.status_many
           } else if(params.work_type == 1) {
             obj.price = result2[0].ls_price
           } else if(params.work_type == 2) {
@@ -292,8 +291,10 @@ router.post('/getWageDtl', (req, res) => {
           } else if(params.work_type == 9) {
             obj.price = result2[0].bz_price
           }
+          obj.xiaoji = parseFloat((obj.price * obj.status_many).toFixed(2))
+          obj.order_remark = result2[0].order_remark
+          obj.order_format = result2[0].order_format
           console.log(obj);
-          obj.xiaoji = obj.price * obj.status_many
           lsArr.push(obj)
         } else {
           res.json({
