@@ -27,7 +27,7 @@
     "js-cookie": "^2.2.0",
     "mysql": "^2.16.0",
     "sortablejs": "^1.7.0",
-    "tinymce": "^4.7.11",
+    "tinymce": "^5.10.0",
     "vue": "^2.5.10",
     "vue-i18n": "^7.6.0",
     "vue-router": "^3.0.1",
